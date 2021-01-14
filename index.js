@@ -1,5 +1,5 @@
 // index.js
-const { fetchISSFlyOverTimes } = require('./iss');
+const { nextISSTimesForMyLocation } = require('./iss');
 
 // fetchMyIP((error, ip) => {
 //   if (error) {
@@ -33,4 +33,20 @@ const { fetchISSFlyOverTimes } = require('./iss');
 
 // });
 
+
+nextISSTimesForMyLocation((error, passTimes) => {
+  if(error) {
+    return console.log("It didn't work dOH!", error);
+  }
+  //success, no error so we can print out the passTimes!
+  //to do this we have to loop through the array
+  for (let pass of passTimes) {
+    const date = new Date(0);
+    //risetime is in the form of a unix time stamp, need to convert using set UTCSeconds
+    date.setUTCSeconds(pass.risetime);
+    const duration = pass.duration;
+    console.log(`Next pass at ${date} for ${duration} seconds!! Ouuuuu...`);
+  }
+
+});
 

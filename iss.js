@@ -8,51 +8,52 @@
  */
 const request = require('request');
 
-// const fetchMyIP = function(callback) {
+const fetchMyIP = function(callback) {
   
-//   request('https://api.ipify.org?format=json', (error, response, body) => {
+  request('https://api.ipify.org?format=json', (error, response, body) => {
 
-//     if (error) {
-//       callback(error, null);
-//       return;
-//     }
+    if (error) {
+      callback(error, null);
+      return;
+    }
     
-//     //if non - 200 status , assume server error
-//     if (response.statusCode !== 200) {
-//       callback(Error(`Status code ${response.statusCode} when fetching IP. Response: ${body}`), null);
-//       return;
-//     }
-//     const ip = JSON.parse(body);
-//     callback(null, ip);
+    //if non - 200 status , assume server error
+    if (response.statusCode !== 200) {
+      callback(Error(`Status code ${response.statusCode} when fetching IP. Response: ${body}`), null);
+      return;
+    }
+    const ip = JSON.parse(body).ip;
+    
+    callback(null, ip);
 
-//   });
-// };
+  });
+};
 
-// const fetchCoordsByIP = function(ip, callback) {
-//   request(`https://freegeoip.app/json/${ip}`, (error, response, body) => {
-   
-//     if (error) {
-//       callback(error, null);
-//       return;
-//     }
+const fetchCoordsByIP = function(ip, callback) {
+  request(`https://freegeoip.app/json/${ip}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
 
-//     if (response.statusCode !== 200) {
-//       callback(Error(`Status code ${response.statusCode} when fetching coordinates for IP. Response: ${body}`), null);
-//       return;
-//     }
+    if (response.statusCode !== 200) {
+      callback(Error(`Status code ${response.statusCode} when fetching coordinates for IP. Response: ${body}`), null);
+      return;
+    }
 
-//     const data = JSON.parse(body);
-//     const latitude = data.latitude;
-//     const longitude = data.longitude;
+    const data = JSON.parse(body);
+    const latitude = data.latitude;
+    const longitude = data.longitude;
 
-//     const coordsObj = {
-//       latitude,
-//       longitude
-//     };
+    const coordsObj = {
+      latitude,
+      longitude
+    };
 
-//     callback(null, coordsObj);
+    callback(null, coordsObj);
 
-//   });
+  });
+};
 
 const fetchISSFlyOverTimes = function(coords, callback) {
   
@@ -75,6 +76,33 @@ const fetchISSFlyOverTimes = function(coords, callback) {
   });
 };
 
+const nextISSTimesForMyLocation = function(callback) {
+  
+  fetchMyIP((error1, ip) => {
+    if (error1) {
+      callback(error);
+      return;
+    }
+    fetchCoordsByIP(ip, (error2, coordinates) => {
+      if (error2) {
+        callback(error2);
+        return;
+      }
+
+      fetchISSFlyOverTimes(coordinates, (error3, passTimes) => {
+        if (error3) {
+          callback(error3);
+          return;
+        }
+        callback(null, passTimes);
+
+      })
+    })
+  })
 
 
-module.exports = { fetchISSFlyOverTimes };
+};
+
+
+
+module.exports = { nextISSTimesForMyLocation }
