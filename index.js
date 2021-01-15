@@ -35,6 +35,8 @@ const { nextISSTimesForMyLocation } = require('./iss');
 
 
 nextISSTimesForMyLocation((error, passTimes) => {
+  //needed to change my nodes timezone to get eastern time...
+  process.env.TZ = "America/Toronto";
   if(error) {
     return console.log("It didn't work dOH!", error);
   }
@@ -47,6 +49,8 @@ nextISSTimesForMyLocation((error, passTimes) => {
     const duration = pass.duration;
     console.log(`Next pass at ${date} for ${duration} seconds!! Ouuuuu...`);
   }
+
+
 
 });
 
